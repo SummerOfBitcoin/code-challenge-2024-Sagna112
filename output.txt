@@ -1,0 +1,6 @@
+Block Header
+Block Hash: 0000cdc87fd3d03fde44b2e9440b65e2d5649e3b67a039ac029bcc3a18414697
+Nonce: 71381
+Coinbase Transaction: Serialized coinbase transaction
+Valid Transactions:
+Serialized coinbase transaction
