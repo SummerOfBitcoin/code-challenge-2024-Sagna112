@@ -71,38 +71,19 @@ def read_json_file(file_path):
 
 # Function to calculate Merkle root hash
 def calculate_merkle_root(transactions):
-    # Implement your Merkle root calculation logic here
-    return "merkle_root_hash"  # Placeholder for demonstration
+    if len(transactions) == 0:
+        return hashlib.sha256(b'').hexdigest()
 
-# Function to validate block
-def validate_block(block):
-    # Validate transactions in the block
-    for transaction in block['transactions']:
-        if not validate_transaction(transaction):
-            return False
-    
-    # Calculate Merkle root hash
-    calculated_merkle_root = calculate_merkle_root(block['transactions'])
-    
-    # Verify Merkle root hash
-    if block['merkle_root'] != calculated_merkle_root:
-        return False
-    
-    # Verify block hash meets target difficulty
-    block_header = (
-        str(block['version']) +
-        block['prev_block_hash'] +
-        block['merkle_root'] +
-        str(block['timestamp']) +
-        str(block['target_difficulty']) +
-        str(block['nonce'])
-    )
-    calculated_block_hash = hashlib.sha256(block_header.encode()).hexdigest()
-    if int(calculated_block_hash, 16) >= block['target_difficulty']:
-        return False
-    
-    # Block is valid
-    return True
+    if len(transactions) == 1:
+        return hashlib.sha256(hashlib.sha256(json.dumps(transactions[0]).encode()).digest()).hexdigest()
+
+    # Concatenate and hash pairs of transaction hashes iteratively until a single hash remains
+    hashes = [hashlib.sha256(json.dumps(tx).encode()).digest() for tx in transactions]
+    while len(hashes) > 1:
+        if len(hashes) % 2 != 0:
+            hashes.append(hashes[-1])  # Duplicate the last hash if the number of hashes is odd
+        hashes = [hashlib.sha256(hashes[i] + hashes[i + 1]).digest() for i in range(0, len(hashes), 2)]
+    return hashes[0].hex()
 
 # Main function to process transactions, mine block, and write output
 def process_transactions(folder_path, target_difficulty):
@@ -122,6 +103,9 @@ def process_transactions(folder_path, target_difficulty):
     # Sort valid transactions based on priority or any other criteria
     sorted_transactions = sorted(valid_transactions, key=lambda x: x['priority'])
 
+    # Construct the block header
+    merkle_root = calculate_merkle_root(sorted_transactions)
+
     # Serialize coinbase transaction (placeholder)
     coinbase_transaction = "Serialized coinbase transaction"  # Replace with actual serialization logic
 
@@ -135,37 +119,20 @@ def process_transactions(folder_path, target_difficulty):
     # Form block header
     version = 1  # Example version number
     prev_block_hash = "0000000000000000000000000000000000000000000000000000000000000000"  # Example previous block hash
-    merkle_root = "merkle_root_hash"  # Example merkle root hash (placeholder)
     timestamp = int(time.time())  # Current Unix timestamp
 
     # Mine the block
     block_hash, nonce = mine_block(version, prev_block_hash, merkle_root, timestamp, target_difficulty)
 
-    # Construct the block
-    block = {
-        'version': version,
-        'prev_block_hash': prev_block_hash,
-        'merkle_root': merkle_root,
-        'timestamp': timestamp,
-        'target_difficulty': target_difficulty,
-        'nonce': nonce,
-        'transactions': sorted_transactions  # Include all transactions in the block
-    }
-
-    # Validate the block
-    if validate_block(block):
-        print("Block is valid")
-        # Write output to output.txt
-        with open('output.txt', 'w') as output_file:
-            output_file.write("Block Header\n")
-            output_file.write("Block Hash: " + block_hash + "\n")
-            output_file.write("Nonce: " + str(nonce) + "\n")
-            output_file.write("Coinbase Transaction: " + coinbase_transaction + "\n")
-            output_file.write("Valid Transactions:\n")
-            for txid in block_transactions:
-                output_file.write(txid + '\n')
-    else:
-        print("Block is invalid")
+    # Write output to output.txt
+    with open('output.txt', 'w') as output_file:
+        output_file.write("Block Header\n")
+        output_file.write("Block Hash: " + block_hash + "\n")
+        output_file.write("Nonce: " + str(nonce) + "\n")
+        output_file.write("Coinbase Transaction: " + coinbase_transaction + "\n")
+        output_file.write("Valid Transactions:\n")
+        for txid in block_transactions:
+            output_file.write(txid + '\n')
 
 # Get the current directory
 current_directory = os.path.dirname(__file__)
