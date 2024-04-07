@@ -184,6 +184,6 @@ if validate_block(block_hash, target_difficulty):
 else:
     print("Block is invalid.")
 
-    # Determine the block height
+# Determine the block height
 block_height = get_block_height(blockchain)
 print("Block height:", block_height)
