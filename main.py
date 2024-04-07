@@ -4,6 +4,12 @@ import hashlib
 import ecdsa
 import time
 
+
+class Block:
+    def __init__(self, index, previous_hash):
+        self.index = index
+        self.previous_hash = previous_hash
+
 # Function to validate transactions using ecdsa and sha256
 def validate_transaction(transaction):
     # Extract transaction data
@@ -136,6 +142,10 @@ def process_transactions(folder_path, target_difficulty):
 
     return block_hash  # Return the block hash
 
+# Function to determine the block height
+def get_block_height(blockchain):
+    return len(blockchain) - 1
+
 # Function to validate a block
 def validate_block(block_hash, target_difficulty):
     # Check if the block hash is not equal to 'Block Hash'
@@ -159,6 +169,10 @@ folder_path = os.path.join(current_directory, 'mempool')
 # Define the target difficulty
 target_difficulty = 0x0000ffff00000000000000000000000000000000000000000000000000000000 # New target difficulty
 
+
+# Create a blockchain (list of blocks) and add the genesis block
+blockchain = [Block(0, "0000000000000000000000000000000000000000000000000000000000000000")]
+
 # Call the main function with the folder path and target difficulty
 process_transactions(folder_path, target_difficulty)
 
@@ -169,3 +183,7 @@ if validate_block(block_hash, target_difficulty):
     print("Block is valid.")
 else:
     print("Block is invalid.")
+
+    # Determine the block height
+block_height = get_block_height(blockchain)
+print("Block height:", block_height)
