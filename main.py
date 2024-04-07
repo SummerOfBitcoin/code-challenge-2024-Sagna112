@@ -134,6 +134,22 @@ def process_transactions(folder_path, target_difficulty):
         for txid in block_transactions:
             output_file.write(txid + '\n')
 
+    return block_hash  # Return the block hash
+
+# Function to validate a block
+def validate_block(block_hash, target_difficulty):
+    # Check if the block hash is not equal to 'Block Hash'
+    if block_hash == 'Block Hash':
+        return False
+
+    # Check if the block hash meets the target difficulty
+    if int(block_hash, 16) >= target_difficulty:
+        return False
+    
+    # Additional block validation rules can be implemented here
+
+    return True
+
 # Get the current directory
 current_directory = os.path.dirname(__file__)
 
@@ -145,3 +161,11 @@ target_difficulty = 0x0000ffff00000000000000000000000000000000000000000000000000
 
 # Call the main function with the folder path and target difficulty
 process_transactions(folder_path, target_difficulty)
+
+block_hash = process_transactions(folder_path, target_difficulty)
+
+# Validate the mined block
+if validate_block(block_hash, target_difficulty):
+    print("Block is valid.")
+else:
+    print("Block is invalid.")
