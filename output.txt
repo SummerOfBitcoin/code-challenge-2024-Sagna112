@@ -1,6 +1,5 @@
 Block Header
-Block Hash: 0000b2f2827b9801b0d6a352066535f842c3259c8113fdf3c26be309eeb753db
-Nonce: 283892
-Coinbase Transaction: Serialized coinbase transaction
+Block Hash: 0000826fbd12d28ff13778da764fd428706256e19e7c804f685c0ef80da530c9
+Nonce: 15469
+Coinbase Transaction: {"block_header": {"version": 1, "prev_block_hash": "0000000000000000000000000000000000000000000000000000000000000000", "merkle_root": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "timestamp": 1713255252, "target_difficulty": 1766820104831717178943502833727831496196810259731196417549125097682370560}, "inputs": [], "outputs": []}
 Valid Transactions:
-Serialized coinbase transaction

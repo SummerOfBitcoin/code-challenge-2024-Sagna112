@@ -106,22 +106,40 @@ def process_transactions(folder_path, target_difficulty):
             if validate_transaction(transaction_data):
                 valid_transactions.append(transaction_data)
     
+    # Identify and remove invalid transactions
+    invalid_transactions = set()
+    for transaction in valid_transactions:
+        if not validate_transaction(transaction):
+            invalid_transactions.add(transaction['vin'][0]['txid'])
+
+    valid_transactions = [tx for tx in valid_transactions if tx['vin'][0]['txid'] not in invalid_transactions]
+
     # Sort valid transactions based on priority or any other criteria
     sorted_transactions = sorted(valid_transactions, key=lambda x: x['priority'])
 
     # Construct the block header
     merkle_root = calculate_merkle_root(sorted_transactions)
 
-    # Serialize coinbase transaction (placeholder)
-    coinbase_transaction = "Serialized coinbase transaction"  # Replace with actual serialization logic
+    # Serialize coinbase transaction with block header information
+    coinbase_transaction = {
+        'block_header': {
+            'version': 1,  # Example version number
+            'prev_block_hash': "0000000000000000000000000000000000000000000000000000000000000000",  # Example previous block hash
+            'merkle_root': merkle_root,
+            'timestamp': int(time.time()),  # Current Unix timestamp
+            'target_difficulty': target_difficulty
+        },
+        'inputs': [],  # Inputs of the coinbase transaction
+        'outputs': []  # Outputs of the coinbase transaction
+    }
 
     # Include coinbase transaction in the block
     block_transactions.append(coinbase_transaction)
 
     # Include other valid transactions in the block
     for transaction in sorted_transactions:
-        block_transactions.append(transaction['vin'][0]['txid'])  # Assuming 'txid' is the key for transaction ID
-    
+        block_transactions.append(transaction)
+
     # Form block header
     version = 1  # Example version number
     prev_block_hash = "0000000000000000000000000000000000000000000000000000000000000000"  # Example previous block hash
@@ -135,12 +153,13 @@ def process_transactions(folder_path, target_difficulty):
         output_file.write("Block Header\n")
         output_file.write("Block Hash: " + block_hash + "\n")
         output_file.write("Nonce: " + str(nonce) + "\n")
-        output_file.write("Coinbase Transaction: " + coinbase_transaction + "\n")
+        output_file.write("Coinbase Transaction: " + json.dumps(coinbase_transaction) + "\n")
         output_file.write("Valid Transactions:\n")
-        for txid in block_transactions:
+        for txid in sorted_transactions:
             output_file.write(txid + '\n')
 
     return block_hash  # Return the block hash
+
 
 # Function to determine the block height
 def get_block_height(blockchain):
