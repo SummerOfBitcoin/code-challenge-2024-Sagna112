@@ -1,8 +1,9 @@
 import os
 import json
 import hashlib
-import ecdsa
+import ecdsa 
 import time
+import base58
 
 
 class Block:
@@ -90,6 +91,10 @@ def calculate_merkle_root(transactions):
             hashes.append(hashes[-1])  # Duplicate the last hash if the number of hashes is odd
         hashes = [hashlib.sha256(hashes[i] + hashes[i + 1]).digest() for i in range(0, len(hashes), 2)]
     return hashes[0].hex()
+
+# Function to encode data using Base58
+def base58_encode(data):
+    return base58.b58encode(data)
 
 # Main function to process transactions, mine block, and write output
 def process_transactions(folder_path, target_difficulty):
